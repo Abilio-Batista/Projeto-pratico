@@ -71,7 +71,6 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
 
-          // ⭐ Lista de contas
           Expanded(
             child: ListView.builder(
               itemCount: contas.length,
