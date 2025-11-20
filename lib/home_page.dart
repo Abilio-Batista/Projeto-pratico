@@ -30,12 +30,71 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void adicionarConta(String titulo, double valor, DateTime venc) {
+    setState(() {
+      contas.add(Conta(titulo: titulo, valor: valor, vencimento: venc));
+    });
+  }
+
+  void abrirModalAdicionarConta() {
+    String titulo = "";
+    String valorTexto = "";
+    DateTime venc = DateTime.now();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: const InputDecoration(labelText: "Título"),
+                onChanged: (v) => titulo = v,
+              ),
+              TextField(
+                decoration: const InputDecoration(labelText: "Valor"),
+                keyboardType: TextInputType.number,
+                onChanged: (v) => valorTexto = v,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  adicionarConta(
+                    titulo,
+                    double.tryParse(valorTexto) ?? 0.0,
+                    venc,
+                  );
+                  Navigator.pop(context);
+                },
+                child: const Text("Adicionar conta"),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Gerenciador de Contas a Pagar"),
         centerTitle: true,
+      ),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: abrirModalAdicionarConta,
+        child: const Icon(Icons.add),
       ),
 
       body: Column(
