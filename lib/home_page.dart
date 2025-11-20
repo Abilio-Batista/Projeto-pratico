@@ -30,59 +30,83 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void adicionarConta(String titulo, double valor, DateTime venc) {
-    setState(() {
-      contas.add(Conta(titulo: titulo, valor: valor, vencimento: venc));
-    });
-  }
+  void adicionarConta() {
+    final tituloController = TextEditingController();
+    final valorController = TextEditingController();
+    DateTime? dataSelecionada;
 
-  void abrirModalAdicionarConta() {
-    String titulo = "";
-    String valorTexto = "";
-    DateTime venc = DateTime.now();
-
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      isScrollControlled: true,
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 16,
-            right: 16,
-            top: 16,
-          ),
-          child: Column(
+        return AlertDialog(
+          title: const Text("Adicionar nova conta"),
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
-                decoration: const InputDecoration(labelText: "Título"),
-                onChanged: (v) => titulo = v,
+                controller: tituloController,
+                decoration: const InputDecoration(labelText: "Título da conta"),
               ),
+
               TextField(
+                controller: valorController,
                 decoration: const InputDecoration(labelText: "Valor"),
                 keyboardType: TextInputType.number,
-                onChanged: (v) => valorTexto = v,
               ),
-              const SizedBox(height: 16),
+
+              const SizedBox(height: 10),
+
               ElevatedButton(
-                onPressed: () {
-                  adicionarConta(
-                    titulo,
-                    double.tryParse(valorTexto) ?? 0.0,
-                    venc,
+                onPressed: () async {
+                  DateTime? escolhida = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime(2030),
                   );
-                  Navigator.pop(context);
+
+                  if (escolhida != null) {
+                    dataSelecionada = escolhida;
+                  }
                 },
-                child: const Text("Adicionar conta"),
+                child: const Text("Selecionar vencimento"),
               ),
-              const SizedBox(height: 16),
             ],
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancelar"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (tituloController.text.isEmpty ||
+                    valorController.text.isEmpty ||
+                    dataSelecionada == null) {
+                  return;
+                }
+              
+
+                setState(() {
+                  contas.add(
+                    Conta(
+                      titulo: tituloController.text,
+                      valor: double.parse(valorController.text),
+                      vencimento: dataSelecionada!,
+                    ),
+                  );
+                });
+
+                Navigator.pop(context);
+              },
+              child: const Text("Adicionar"),
+            ),
+          ],
         );
       },
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +117,7 @@ class _HomePageState extends State<HomePage> {
       ),
 
       floatingActionButton: FloatingActionButton(
-        onPressed: abrirModalAdicionarConta,
+        onPressed: adicionarConta,
         child: const Icon(Icons.add),
       ),
 
